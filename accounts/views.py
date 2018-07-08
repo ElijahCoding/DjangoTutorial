@@ -9,6 +9,7 @@ from django.contrib.auth.forms import (
     UserChangeForm,
     PasswordChangeForm
 )
+from django.contrib.auth import update_session_auth_hash
 
 # Create your views here.
 def home(request):
@@ -47,11 +48,15 @@ def edit_profile(request):
 
 def change_password(request):
     if request.method == 'POST':
-        form = PasswordChangeForm(request.POST, user=request.user)
+        form = PasswordChangeForm(data=request.POST, user=request.user)
 
         if form.is_valid():
             form.save()
+            update_session_auth_hash(request, form.user)
             return redirect('/account/profile')
+
+        else:
+            return redirect('/account/change_password')
 
     else:
         form = PasswordChangeForm(user=request.user)
